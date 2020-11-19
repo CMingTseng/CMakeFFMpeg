@@ -1,0 +1,81 @@
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'kotlin-android-extensions'
+}
+
+android {
+    // Ref : https://developer.android.com/studio/projects/install-ndk#apply-specific-version
+    ndkVersion "21.3.6528147"  //TODO  define NDK version  now not use local.properties
+    //Ref : https://developer.android.com/studio/projects/configure-agp-ndk
+//    ndkPath " "  // Point to your own NDK
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
+
+    defaultConfig {
+//        applicationId "com.syllogismobile.ffmpeg_sample"
+        minSdkVersion 21
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        externalNativeBuild {
+            cmake {
+//                cppFlags "-std=c++11"
+            }
+        }
+
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    flavorDimensions "non-free"
+    productFlavors {
+        free {
+            dimension "non-free"
+            buildConfigField "boolean", "LIB_X264_ENABLED", "false"
+            externalNativeBuild {
+                cmake {
+                    arguments "-DLIB_X264_ENABLED:BOOL=OFF", "-DANDROID_ARM_NEON=ON"
+                }
+            }
+        }
+        nonFree {
+            dimension "non-free"
+            buildConfigField "boolean", "LIB_X264_ENABLED", "true"
+            externalNativeBuild {
+                cmake {
+                    arguments '-DLIB_X264_ENABLED:BOOL=ON', "-DANDROID_ARM_NEON=ON"
+                }
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.10.2"
+        }
+    }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.core:core-ktx:1.3.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+}
